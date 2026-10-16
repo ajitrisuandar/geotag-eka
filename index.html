@@ -40,6 +40,7 @@
       top: auto;
       width: auto;
       transform: none;
+      background-color: rgba(0, 0, 0, 0.6); /* Transparan */
     }
 
     /* 2. Mode Landscape */
@@ -63,6 +64,7 @@
       width: 290px;
       transform: rotate(-90deg);
       transform-origin: bottom right;
+      background-color: rgba(0, 0, 0, 0.6); /* Transparan */
     }
   </style>
 </head>
@@ -107,7 +109,7 @@
         </div>
 
         <!-- Live Watermark Overlay -->
-        <div id="liveOverlayBox" class="absolute bg-black/85 backdrop-blur-sm p-2.5 rounded-xl border border-white/15 text-white pointer-events-none z-10 flex gap-2.5 items-center transition-all duration-300 shadow-xl">
+        <div id="liveOverlayBox" class="absolute backdrop-blur-sm p-2.5 rounded-xl border border-white/15 text-white pointer-events-none z-10 flex gap-2.5 items-center transition-all duration-300 shadow-xl">
           <img id="liveMapImg" src="" alt="Map" class="w-16 h-16 rounded-lg object-cover border border-white/30 shrink-0 hidden">
           <div class="flex-1 min-w-0">
             <div class="text-amber-400 font-bold text-[10px] mb-0.5">📍 GPS MAP Camera</div>
@@ -516,7 +518,6 @@
         ctx.drawImage(videoElement, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
       }
 
-      // Faktor skala presisi proporsional berdasarkan ukuran live view CSS
       const r = targetWidth / cWidth;
 
       if (LOGO_URL) {
@@ -529,7 +530,6 @@
           
           ctx.save();
           if (layoutOrientation === 'landscape') {
-            // Sinkron persis dengan CSS: bottom: 45px; left: 45px;
             let logoX = Math.round(45 * r);
             let logoY = canvas.height - Math.round(45 * r);
             ctx.translate(logoX, logoY);
@@ -548,7 +548,6 @@
             }
             ctx.drawImage(logoImg, logoPadding, logoPadding, logoWidth, logoHeight);
           } else {
-            // Mode Portrait: top: 12px; left: 12px;
             let logoX = Math.round(12 * r);
             let logoY = Math.round(12 * r);
             const bgWidth = logoWidth + (2 * logoPadding);
@@ -582,31 +581,31 @@
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        // Sinkron persis dengan CSS: bottom: 350px; right: 45px; width: 290px;
-        const boxWidth = Math.round(400 * r);
+        const boxWidth = Math.round(290 * r);
         const boxHeight = Math.round(135 * r);
         
         ctx.save();
-        const transX = width - Math.round(50 * r);
-        const transY = canvas.height - Math.round(500 * r);
+        const transX = width - Math.round(45 * r);
+        const transY = canvas.height - Math.round(350 * r);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+        // Latar belakang watermark transparan (rgba 0.6)
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
-          ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(12 * r));
+          ctx.roundRect(0, 0, boxWidth, boxHeight, Math.round(12 * r));
           ctx.fill();
         } else {
-          ctx.fillRect(-boxWidth, -boxHeight, boxWidth, boxHeight);
+          ctx.fillRect(0, 0, boxWidth, boxHeight);
         }
 
         if (mapDataUrl) {
           const mapImg = new Image();
           mapImg.onload = () => {
             const mapSize = Math.round(110 * r);
-            const mapX = -boxWidth + Math.round(12 * r);
-            const mapY = -boxHeight + Math.round(12 * r);
+            const mapX = Math.round(12 * r);
+            const mapY = Math.round(12 * r);
 
             ctx.save();
             ctx.beginPath();
@@ -623,23 +622,23 @@
               ctx.strokeRect(mapX, mapY, mapSize, mapSize);
             }
 
-            drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, mapSize + Math.round(24 * r));
+            drawRotatedWatermarkText(ctx, 0, 0, boxWidth, r, mapSize + Math.round(24 * r));
             ctx.restore();
           };
           mapImg.src = mapDataUrl;
         } else {
-          drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, Math.round(15 * r));
+          drawRotatedWatermarkText(ctx, 0, 0, boxWidth, r, Math.round(15 * r));
           ctx.restore();
         }
 
       } else {
-        // Mode Portrait: bottom: 12px; left: 12px; right: 12px;
         const boxHeight = Math.round(135 * r);
         const boxY = canvas.height - boxHeight - Math.round(12 * r);
         const boxX = Math.round(12 * r);
         const boxWidth = width - Math.round(24 * r);
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+        // Latar belakang watermark transparan (rgba 0.6)
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
           ctx.roundRect(boxX, boxY, boxWidth, boxHeight, Math.round(12 * r));
