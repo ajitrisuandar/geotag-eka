@@ -56,8 +56,8 @@
       transform-origin: bottom left;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 250px;
-      right: 70px;
+      bottom: 350px;
+      right: 45px;
       left: auto;
       top: auto;
       width: 290px;
@@ -533,7 +533,7 @@
           }
           ctx.restore();
 
-          loadMapAndRenderWatermark(canvas, scale);
+          (canvas, scale);
         };
         logoImg.onerror = () => {
           loadMapAndRenderWatermark(canvas, scale);
@@ -555,8 +555,8 @@
         
         ctx.save();
         // Titik translasi disesuaikan agar pas di tengah bawah area canvas
-        const transX = width - Math.round(75 * scale);
-        const transY = canvas.height - Math.round(75 * scale);
+        const transX = width - Math.round(90 * scale);
+        const transY = canvas.height - Math.round(90 * scale);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
