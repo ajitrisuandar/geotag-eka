@@ -49,15 +49,15 @@
       right: auto;
     }
     .mode-landscape #liveLogoContainer {
-      bottom: 20px;
-      left: 20px;
+      bottom: 45px;
+      left: 45px;
       top: auto;
       transform: rotate(-90deg);
       transform-origin: bottom left;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 20px;
-      right: 20px;
+      bottom: 350px;
+      right: 45px;
       left: auto;
       top: auto;
       width: 290px;
@@ -86,7 +86,7 @@
 
     <!-- 2. Kotak Kamera Live & Watermark Overlay -->
     <div id="liveCameraContainer" class="w-full hidden flex flex-col items-center relative">
-      <!-- cameraViewWrapper memiliki event onclick untuk Tap to Focus -->
+      <!-- cameraViewWrapper memiliki event onclick untuk Fokus Kamera -->
       <div id="cameraViewWrapper" onclick="triggerAutoFocus()" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait cursor-pointer">
         
         <!-- Elemen Video Live -->
@@ -516,7 +516,7 @@
         ctx.drawImage(videoElement, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
       }
 
-      // Faktor skala proporsional akurat
+      // Faktor skala presisi proporsional berdasarkan ukuran live view CSS
       const r = targetWidth / cWidth;
 
       if (LOGO_URL) {
@@ -529,9 +529,9 @@
           
           ctx.save();
           if (layoutOrientation === 'landscape') {
-            // Sinkron presisi matriks canvas dengan CSS: bottom: 20px; left: 20px; rotate(-90deg)
-            let logoX = Math.round(20 * r);
-            let logoY = canvas.height - Math.round(20 * r);
+            // Sinkron persis dengan CSS: bottom: 45px; left: 45px;
+            let logoX = Math.round(45 * r);
+            let logoY = canvas.height - Math.round(45 * r);
             ctx.translate(logoX, logoY);
             ctx.rotate(-Math.PI / 2);
 
@@ -541,12 +541,12 @@
             ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
             if (typeof ctx.roundRect === 'function') {
               ctx.beginPath();
-              ctx.roundRect(0, -bgHeight, bgWidth, bgHeight, Math.round(8 * r));
+              ctx.roundRect(0, 0, bgWidth, bgHeight, Math.round(8 * r));
               ctx.fill();
             } else {
-              ctx.fillRect(0, -bgHeight, bgWidth, bgHeight);
+              ctx.fillRect(0, 0, bgWidth, bgHeight);
             }
-            ctx.drawImage(logoImg, logoPadding, -bgHeight + logoPadding, logoWidth, logoHeight);
+            ctx.drawImage(logoImg, logoPadding, logoPadding, logoWidth, logoHeight);
           } else {
             // Mode Portrait: top: 12px; left: 12px;
             let logoX = Math.round(12 * r);
@@ -582,30 +582,30 @@
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        // Sinkron presisi matriks canvas dengan CSS: bottom: 20px; right: 20px; width: 290px; rotate(-90deg)
-        const boxWidth = Math.round(290 * r);
-        const boxHeight = Math.round(135 * r);
+        // Sinkron persis dengan CSS: bottom: 350px; right: 45px; width: 290px;
+        const boxWidth = Math.round(200 * r);
+        const boxHeight = Math.round(100 * r);
         
         ctx.save();
-        const transX = width - Math.round(20 * r);
-        const transY = canvas.height - Math.round(20 * r);
+        const transX = width - Math.round(40 * r);
+        const transY = canvas.height - Math.round(300 * r);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
-          ctx.roundRect(0, -boxHeight, boxWidth, boxHeight, Math.round(12 * r));
+          ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(12 * r));
           ctx.fill();
         } else {
-          ctx.fillRect(0, -boxHeight, boxWidth, boxHeight);
+          ctx.fillRect(-boxWidth, -boxHeight, boxWidth, boxHeight);
         }
 
         if (mapDataUrl) {
           const mapImg = new Image();
           mapImg.onload = () => {
             const mapSize = Math.round(110 * r);
-            const mapX = Math.round(12 * r);
+            const mapX = -boxWidth + Math.round(12 * r);
             const mapY = -boxHeight + Math.round(12 * r);
 
             ctx.save();
@@ -623,12 +623,12 @@
               ctx.strokeRect(mapX, mapY, mapSize, mapSize);
             }
 
-            drawRotatedWatermarkText(ctx, 0, -boxHeight, boxWidth, r, mapSize + Math.round(24 * r));
+            drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, mapSize + Math.round(24 * r));
             ctx.restore();
           };
           mapImg.src = mapDataUrl;
         } else {
-          drawRotatedWatermarkText(ctx, 0, -boxHeight, boxWidth, r, Math.round(15 * r));
+          drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, Math.round(15 * r));
           ctx.restore();
         }
 
