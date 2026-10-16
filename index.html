@@ -583,12 +583,12 @@
 
       if (layoutOrientation === 'landscape') {
         // Sinkron persis dengan CSS: bottom: 350px; right: 45px; width: 290px;
-        const boxWidth = Math.round(600 * r);
-        const boxHeight = Math.round(125 * r);
+        const boxWidth = Math.round(400 * r);
+        const boxHeight = Math.round(135 * r);
         
         ctx.save();
         const transX = width - Math.round(100 * r);
-        const transY = canvas.height - Math.round(300 * r);
+        const transY = canvas.height - Math.round(100 * r);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
