@@ -37,25 +37,28 @@
       bottom: 12px;
       left: 12px;
       right: 12px;
+      top: auto;
       width: auto;
     }
 
-    /* 2. Mode Landscape */
+    /* 2. Mode Landscape (Logo di Kiri Atas, Watermark di Kanan Atas) */
     .mode-landscape #liveControlsContainer {
-      top: 12px;
+      bottom: 12px;
       left: 12px;
       right: auto;
-      flex-direction: column;
+      top: auto;
+      flex-direction: row;
     }
     .mode-landscape #liveLogoContainer {
-      bottom: 12px;
+      top: 12px;
       left: 12px;
-      top: auto;
+      bottom: auto;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 12px;
+      top: 12px;
       right: 12px;
       left: auto;
+      bottom: auto;
       width: 320px;
     }
   </style>
@@ -203,7 +206,7 @@
         cameraWrapper.classList.remove('mode-portrait');
         cameraWrapper.classList.add('mode-landscape');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Landscape Aktif (Watermark di Bawah Kanan)', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Landscape Aktif (Logo: Kiri Atas, Watermark: Kanan Atas)', showConfirmButton: false, timer: 1500 });
       } else {
         cameraWrapper.classList.remove('mode-landscape');
         cameraWrapper.classList.add('mode-portrait');
@@ -445,31 +448,36 @@
 
       const vWidth = videoElement.videoWidth;
       const vHeight = videoElement.videoHeight;
-      const cWidth = videoElement.clientWidth;
-      const cHeight = videoElement.clientHeight;
-
-      const vRatio = vWidth / vHeight;
-      const cRatio = cWidth / cHeight;
-
-      let sWidth, sHeight, sx, sy;
-      if (vRatio > cRatio) {
-        sHeight = vHeight;
-        sWidth = vHeight * cRatio;
-        sx = (vWidth - sWidth) / 2;
-        sy = 0;
+      
+      // Tentukan ukuran target canvas berdasarkan orientasi (Portrait vs Landscape Asli)
+      let targetWidth, targetHeight;
+      if (layoutOrientation === 'landscape') {
+        targetWidth = 1200;
+        targetHeight = 675; // Rasio landscape 16:9
       } else {
-        sWidth = vWidth;
-        sHeight = vWidth / cRatio;
-        sx = 0;
-        sy = (vHeight - sHeight) / 2;
+        targetWidth = 900;
+        targetHeight = 1200; // Rasio portrait
       }
-
-      const targetWidth = 1200;
-      const targetHeight = Math.round(targetWidth / cRatio);
 
       canvas.width = targetWidth;
       canvas.height = targetHeight;
       const ctx = canvas.getContext('2d');
+
+      const targetRatio = targetWidth / targetHeight;
+      const vRatio = vWidth / vHeight;
+
+      let sWidth, sHeight, sx, sy;
+      if (vRatio > targetRatio) {
+        sHeight = vHeight;
+        sWidth = vHeight * targetRatio;
+        sx = (vWidth - sWidth) / 2;
+        sy = 0;
+      } else {
+        sWidth = vWidth;
+        sHeight = vWidth / targetRatio;
+        sx = 0;
+        sy = (vHeight - sHeight) / 2;
+      }
 
       if (currentFacingMode === 'user') {
         ctx.save();
@@ -492,9 +500,9 @@
           
           let logoX, logoY;
           if (layoutOrientation === 'landscape') {
-            // Mode Landscape: Logo di Bawah Kiri
-            logoX = Math.round(15 * scale);
-            logoY = canvas.height - logoHeight - Math.round(15 * scale);
+            // Mode Landscape: Logo di Kiri Atas
+            logoX = Math.round(20 * scale);
+            logoY = Math.round(20 * scale);
           } else {
             // Mode Portrait: Logo di Atas Kiri
             logoX = Math.round(15 * scale);
@@ -535,11 +543,11 @@
       let boxWidth, boxHeight, boxX, boxY;
 
       if (layoutOrientation === 'landscape') {
-        // Mode Landscape: Watermark Card di Bawah Kanan
-        boxWidth = Math.round(320 * scale);
+        // Mode Landscape: Watermark Card di Kanan Atas
+        boxWidth = Math.round(340 * scale);
         boxHeight = Math.round(135 * scale);
-        boxX = width - boxWidth - Math.round(15 * scale);
-        boxY = canvas.height - boxHeight - Math.round(15 * scale);
+        boxX = width - boxWidth - Math.round(20 * scale);
+        boxY = Math.round(20 * scale);
       } else {
         // Mode Portrait: Watermark Melebar Penuh di Bawah
         boxHeight = Math.round(135 * scale);
