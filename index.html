@@ -19,41 +19,50 @@
       overflow: hidden;
     }
 
-    /* --- TATA LETAK LIVE VIEW UI --- */
-    .mode-portrait #videoElement {
-      height: 540px;
-    }
+    /* --- PENGATURAN POSISI & ROTASI UI LIVE VIEW --- */
+
+    /* 1. Mode Portrait (Default) */
     .mode-portrait #liveControlsContainer {
       top: 12px;
       right: 12px;
+      left: auto;
     }
     .mode-portrait #liveLogoContainer {
       top: 12px;
       left: 12px;
+      bottom: auto;
+      transform: none;
     }
     .mode-portrait #liveOverlayBox {
       bottom: 12px;
       left: 12px;
       right: 12px;
+      top: auto;
       width: auto;
+      transform: none;
     }
 
-    /* Mode Landscape (Widescreen Live Preview) */
-    .mode-landscape #videoElement {
-      height: 280px;
-    }
+    /* 2. Mode Landscape (Tombol Kiri Atas, Logo Kiri Bawah Diputar, Watermark Kanan Bawah Diputar) */
     .mode-landscape #liveControlsContainer {
       top: 12px;
       left: 12px;
+      right: auto;
     }
     .mode-landscape #liveLogoContainer {
-      top: 12px;
-      left: 12px;
+      bottom: 15px;
+      left: 15px;
+      top: auto;
+      transform: rotate(90deg);
+      transform-origin: bottom left;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 12px;
-      right: 12px;
-      width: 310px;
+      bottom: 15px;
+      right: 15px;
+      left: auto;
+      top: auto;
+      width: 300px;
+      transform: rotate(90deg);
+      transform-origin: bottom right;
     }
   </style>
 </head>
@@ -79,10 +88,10 @@
     <div id="liveCameraContainer" class="w-full hidden flex flex-col items-center relative">
       <div id="cameraViewWrapper" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait">
         
-        <!-- Elemen Video Live -->
-        <video id="videoElement" autoplay playsinline muted class="w-full object-cover transition-all duration-300"></video>
+        <!-- Elemen Video Live (Dibuat Lebih Besar / Full) -->
+        <video id="videoElement" autoplay playsinline muted class="w-full h-[78vh] max-h-[820px] object-cover"></video>
         
-        <!-- Tombol Kontrol (Ganti Kamera & Toggle Mode) -->
+        <!-- Tombol Kontrol (Di Kiri Atas saat Landscape) -->
         <div id="liveControlsContainer" class="absolute flex gap-2 z-20 transition-all duration-300">
           <button onclick="switchCamera()" class="bg-slate-900/85 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md border border-slate-700 flex items-center justify-center" title="Ganti Kamera">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,12 +206,12 @@
         cameraWrapper.classList.remove('mode-portrait');
         cameraWrapper.classList.add('mode-landscape');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape (Widescreen)', showConfirmButton: false, timer: 1200 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape (Logo Kiri Bawah, Watermark Kanan Bawah - Diputar 90°)', showConfirmButton: false, timer: 1500 });
       } else {
         cameraWrapper.classList.remove('mode-landscape');
         cameraWrapper.classList.add('mode-portrait');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Portrait', showConfirmButton: false, timer: 1200 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Portrait', showConfirmButton: false, timer: 1500 });
       }
     }
 
@@ -439,36 +448,32 @@
 
       const vWidth = videoElement.videoWidth;
       const vHeight = videoElement.videoHeight;
-      
-      // TENTUKAN RESOLUSI CANVAS BERDASARKAN ORIENTASI (TRUE LANDSCAPE VS PORTRAIT)
-      let targetWidth, targetHeight;
-      if (layoutOrientation === 'landscape') {
-        targetWidth = 1200;
-        targetHeight = 675; // Rasio Landscape Widescreen (16:9) agar tidak miring di galeri
-      } else {
-        targetWidth = 900;
-        targetHeight = 1200; // Rasio Portrait
-      }
+      const cWidth = videoElement.clientWidth;
+      const cHeight = videoElement.clientHeight;
 
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      const ctx = canvas.getContext('2d');
-
-      const targetRatio = targetWidth / targetHeight;
       const vRatio = vWidth / vHeight;
+      const cRatio = cWidth / cHeight;
 
       let sWidth, sHeight, sx, sy;
-      if (vRatio > targetRatio) {
+      if (vRatio > cRatio) {
         sHeight = vHeight;
-        sWidth = vHeight * targetRatio;
+        sWidth = vHeight * cRatio;
         sx = (vWidth - sWidth) / 2;
         sy = 0;
       } else {
         sWidth = vWidth;
-        sHeight = vWidth / targetRatio;
+        sHeight = vWidth / cRatio;
         sx = 0;
         sy = (vHeight - sHeight) / 2;
       }
+
+      // Ukuran Canvas Standar Asli (Sesuai Permintaan)
+      const targetWidth = 1000;
+      const targetHeight = Math.round(targetWidth / cRatio);
+
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext('2d');
 
       if (currentFacingMode === 'user') {
         ctx.save();
@@ -486,35 +491,47 @@
         logoImg.crossOrigin = "anonymous";
         logoImg.onload = () => {
           const logoPadding = Math.round(5 * scale); 
-          const logoHeight = Math.round(38 * scale);
+          const logoHeight = Math.round(40 * scale);
           const logoWidth = Math.round(logoHeight * (logoImg.width / logoImg.height));
           
-          let logoX, logoY;
+          ctx.save();
           if (layoutOrientation === 'landscape') {
-            // Mode Landscape: Logo di Kiri Atas
-            logoX = Math.round(15 * scale);
-            logoY = Math.round(15 * scale);
+            // Mode Landscape: Logo di Kiri Bawah & Diputar 90 Derajat
+            let logoX = Math.round(15 * scale);
+            let logoY = canvas.height - Math.round(15 * scale);
+            ctx.translate(logoX, logoY);
+            ctx.rotate(-Math.PI / 2); // Putar 90 derajat berlawanan arah jarum jam agar tegak saat HP miring
+
+            const bgWidth = logoWidth + (2 * logoPadding);
+            const bgHeight = logoHeight + (2 * logoPadding);
+            
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            if (typeof ctx.roundRect === 'function') {
+              ctx.beginPath();
+              ctx.roundRect(0, -logoHeight - logoPadding, bgWidth, bgHeight, Math.round(8 * scale));
+              ctx.fill();
+            } else {
+              ctx.fillRect(0, -logoHeight - logoPadding, bgWidth, bgHeight);
+            }
+            ctx.drawImage(logoImg, logoPadding, -logoHeight - logoPadding + logoPadding, logoWidth, logoHeight);
           } else {
-            // Mode Portrait: Logo di Atas Kiri
-            logoX = Math.round(15 * scale);
-            logoY = Math.round(15 * scale);
+            // Mode Portrait: Logo di Atas Kiri (Normal)
+            let logoX = Math.round(15 * scale);
+            let logoY = Math.round(15 * scale);
+            const bgWidth = logoWidth + (2 * logoPadding);
+            const bgHeight = logoHeight + (2 * logoPadding);
+
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            if (typeof ctx.roundRect === 'function') {
+              ctx.beginPath();
+              ctx.roundRect(logoX - logoPadding, logoY - logoPadding, bgWidth, bgHeight, Math.round(8 * scale));
+              ctx.fill();
+            } else {
+              ctx.fillRect(logoX - logoPadding, logoY - logoPadding, bgWidth, bgHeight);
+            }
+            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
           }
-
-          const bgWidth = logoWidth + (2 * logoPadding);
-          const bgHeight = logoHeight + (2 * logoPadding);
-          const bgX = logoX - logoPadding;
-          const bgY = logoY - logoPadding;
-
-          ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-          if (typeof ctx.roundRect === 'function') {
-            ctx.beginPath();
-            ctx.roundRect(bgX, bgY, bgWidth, bgHeight, Math.round(8 * scale));
-            ctx.fill();
-          } else {
-            ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
-          }
-
-          ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+          ctx.restore();
 
           loadMapAndRenderWatermark(canvas, scale);
         };
@@ -531,59 +548,130 @@
       const ctx = canvas.getContext('2d');
       const width = canvas.width;
 
-      let boxWidth, boxHeight, boxX, boxY;
-
       if (layoutOrientation === 'landscape') {
-        // Mode Landscape: Watermark Card di Kanan Bawah
-        boxWidth = Math.round(320 * scale);
-        boxHeight = Math.round(125 * scale);
-        boxX = width - boxWidth - Math.round(15 * scale);
-        boxY = canvas.height - boxHeight - Math.round(15 * scale);
-      } else {
-        // Mode Portrait: Watermark Melebar Penuh di Bawah
-        boxHeight = Math.round(135 * scale);
-        boxY = canvas.height - boxHeight - Math.round(15 * scale);
-        boxX = Math.round(15 * scale);
-        boxWidth = width - Math.round(30 * scale);
-      }
+        // Mode Landscape: Watermark Card di Kanan Bawah & Diputar 90 Derajat
+        const boxWidth = Math.round(320 * scale);
+        const boxHeight = Math.round(135 * scale);
+        
+        ctx.save();
+        // Titik translasi di sudut Kanan Bawah Canvas
+        const transX = width - Math.round(15 * scale);
+        const transY = canvas.height - Math.round(15 * scale);
+        ctx.translate(transX, transY);
+        ctx.rotate(-Math.PI / 2); // Putar 90 derajat
 
-      ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
-      if (typeof ctx.roundRect === 'function') {
-        ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, Math.round(12 * scale));
-        ctx.fill();
-      } else {
-        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-      }
-
-      if (mapDataUrl) {
-        const mapImg = new Image();
-        mapImg.onload = () => {
-          const mapSize = Math.round(95 * scale);
-          const mapX = boxX + Math.round(12 * scale);
-          const mapY = boxY + Math.round(12 * scale);
-
-          ctx.save();
+        // Render kotak background watermark
+        ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+        if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
-          if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale));
-          ctx.clip();
-          ctx.drawImage(mapImg, mapX, mapY, mapSize, mapSize);
+          ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(12 * scale));
+          ctx.fill();
+        } else {
+          ctx.fillRect(-boxWidth, -boxHeight, boxWidth, boxHeight);
+        }
+
+        if (mapDataUrl) {
+          const mapImg = new Image();
+          mapImg.onload = () => {
+            const mapSize = Math.round(110 * scale);
+            const mapX = -boxWidth + Math.round(12 * scale);
+            const mapY = -boxHeight + Math.round(12 * scale);
+
+            ctx.save();
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale));
+            ctx.clip();
+            ctx.drawImage(mapImg, mapX, mapY, mapSize, mapSize);
+            ctx.restore();
+
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 1.5;
+            if (typeof ctx.roundRect === 'function') {
+              ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale)); ctx.stroke();
+            } else {
+              ctx.strokeRect(mapX, mapY, mapSize, mapSize);
+            }
+
+            drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, scale, mapSize + Math.round(24 * scale));
+            ctx.restore();
+          };
+          mapImg.src = mapDataUrl;
+        } else {
+          drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, scale, Math.round(15 * scale));
           ctx.restore();
+        }
 
-          ctx.strokeStyle = "#FFFFFF";
-          ctx.lineWidth = 1.5;
-          if (typeof ctx.roundRect === 'function') {
-            ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale)); ctx.stroke();
-          } else {
-            ctx.strokeRect(mapX, mapY, mapSize, mapSize);
-          }
-
-          drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, mapSize + Math.round(22 * scale));
-        };
-        mapImg.src = mapDataUrl;
       } else {
-        drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, Math.round(15 * scale));
+        // Mode Portrait: Watermark Melebar Penuh di Bawah (Normal)
+        const boxHeight = Math.round(135 * scale);
+        const boxY = canvas.height - boxHeight - Math.round(15 * scale);
+        const boxX = Math.round(15 * scale);
+        const boxWidth = width - Math.round(30 * scale);
+
+        ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+        if (typeof ctx.roundRect === 'function') {
+          ctx.beginPath();
+          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, Math.round(12 * scale));
+          ctx.fill();
+        } else {
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        }
+
+        if (mapDataUrl) {
+          const mapImg = new Image();
+          mapImg.onload = () => {
+            const mapSize = Math.round(110 * scale);
+            const mapX = boxX + Math.round(12 * scale);
+            const mapY = boxY + Math.round(12 * scale);
+
+            ctx.save();
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale));
+            ctx.clip();
+            ctx.drawImage(mapImg, mapX, mapY, mapSize, mapSize);
+            ctx.restore();
+
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 1.5;
+            if (typeof ctx.roundRect === 'function') {
+              ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale)); ctx.stroke();
+            } else {
+              ctx.strokeRect(mapX, mapY, mapSize, mapSize);
+            }
+
+            drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, mapSize + Math.round(24 * scale));
+          };
+          mapImg.src = mapDataUrl;
+        } else {
+          drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, Math.round(15 * scale));
+        }
       }
+    }
+
+    function drawRotatedWatermarkText(ctx, boxX, boxY, boxWidth, scale, textOffsetX) {
+      const contentX = boxX + textOffsetX;
+      const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * scale);
+      
+      ctx.fillStyle = "#F59E0B";
+      ctx.font = "bold " + Math.round(11 * scale) + "px sans-serif";
+      ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * scale));
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = Math.round(9.5 * scale) + "px sans-serif";
+      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * scale), maxTextWidth, Math.round(13 * scale));
+
+      ctx.fillStyle = "#38BDF8";
+      ctx.font = "bold " + Math.round(10 * scale) + "px monospace";
+      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * scale));
+
+      const now = getRealTime();
+      const tanggalStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + " " + now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + " GMT +07:00";
+      
+      ctx.fillStyle = "#CBD5E1";
+      ctx.font = Math.round(9 * scale) + "px sans-serif";
+      ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * scale));
+
+      finalizeCanvasImage();
     }
 
     function drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, textOffsetX) {
@@ -591,23 +679,23 @@
       const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * scale);
       
       ctx.fillStyle = "#F59E0B";
-      ctx.font = "bold " + Math.round(10.5 * scale) + "px sans-serif";
-      ctx.fillText("📍 GPS MAP Camera", contentX, boxY + Math.round(20 * scale));
+      ctx.font = "bold " + Math.round(11 * scale) + "px sans-serif";
+      ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * scale));
 
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = Math.round(9 * scale) + "px sans-serif";
-      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(35 * scale), maxTextWidth, Math.round(12 * scale));
+      ctx.font = Math.round(9.5 * scale) + "px sans-serif";
+      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * scale), maxTextWidth, Math.round(13 * scale));
 
       ctx.fillStyle = "#38BDF8";
-      ctx.font = "bold " + Math.round(9.5 * scale) + "px monospace";
-      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(88 * scale));
+      ctx.font = "bold " + Math.round(10 * scale) + "px monospace";
+      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * scale));
 
       const now = getRealTime();
       const tanggalStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + " " + now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + " GMT +07:00";
       
       ctx.fillStyle = "#CBD5E1";
-      ctx.font = Math.round(8.5 * scale) + "px sans-serif";
-      ctx.fillText(tanggalStr, contentX, boxY + Math.round(108 * scale));
+      ctx.font = Math.round(9 * scale) + "px sans-serif";
+      ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * scale));
 
       finalizeCanvasImage();
     }
@@ -624,7 +712,7 @@
         let metrics = context.measureText(testLine);
         let testWidth = metrics.width;
         if (testWidth > maxWidth && n > 0) {
-          if (lineCount < 2) {
+          if (lineCount < 3) {
             context.fillText(line, x, currentY);
             line = words[n] + ' ';
             currentY += lineHeight;
