@@ -19,43 +19,42 @@
       overflow: hidden;
     }
 
-    /* --- TATA LETAK RAPI (PORTRAIT VS LANDSCAPE) --- */
+    /* --- PENGATURAN POSISI UI LIVE VIEW --- */
 
-    /* Mode Portrait */
-    .mode-portrait #videoElement {
-      height: 480px;
-    }
+    /* Mode Portrait (Default) */
     .mode-portrait #liveControlsContainer {
-      top: 10px;
-      right: 10px;
+      top: 12px;
+      right: 12px;
+      left: auto;
     }
     .mode-portrait #liveLogoContainer {
-      top: 10px;
-      left: 10px;
+      top: 12px;
+      left: 12px;
+      bottom: auto;
     }
     .mode-portrait #liveOverlayBox {
-      bottom: 10px;
-      left: 10px;
-      right: 10px;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
       width: auto;
     }
 
-    /* Mode Landscape (Kompak & Tidak Berserak) */
-    .mode-landscape #videoElement {
-      height: 260px;
-    }
+    /* Mode Landscape (Tombol di Kiri Atas, Logo di Bawah Kiri, Watermark di Bawah Kanan) */
     .mode-landscape #liveControlsContainer {
-      top: 10px;
-      right: 10px;
+      top: 12px;
+      left: 12px;
+      right: auto;
     }
     .mode-landscape #liveLogoContainer {
-      top: 10px;
-      left: 10px;
+      bottom: 12px;
+      left: 12px;
+      top: auto;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 10px;
-      right: 10px;
-      width: 290px;
+      bottom: 12px;
+      right: 12px;
+      left: auto;
+      width: 320px;
     }
   </style>
 </head>
@@ -81,37 +80,37 @@
     <div id="liveCameraContainer" class="w-full hidden flex flex-col items-center relative">
       <div id="cameraViewWrapper" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait">
         
-        <!-- Elemen Video Live -->
-        <video id="videoElement" autoplay playsinline muted class="w-full object-cover transition-all duration-300"></video>
+        <!-- Elemen Video Live (Ukuran Tinggi Normal) -->
+        <video id="videoElement" autoplay playsinline muted class="w-full h-[540px] object-cover"></video>
         
         <!-- Tombol Kontrol (Ganti Kamera & Toggle Mode) -->
-        <div id="liveControlsContainer" class="absolute flex gap-2 z-25 transition-all duration-300">
-          <button onclick="switchCamera()" class="bg-slate-900/85 hover:bg-slate-800 text-amber-400 p-2 rounded-full shadow-lg backdrop-blur-md border border-slate-700 flex items-center justify-center" title="Ganti Kamera">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div id="liveControlsContainer" class="absolute flex gap-2 z-20 transition-all duration-300">
+          <button onclick="switchCamera()" class="bg-slate-900/85 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md border border-slate-700 flex items-center justify-center" title="Ganti Kamera">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
-          <button onclick="toggleOrientationMode()" class="bg-slate-900/85 hover:bg-slate-800 text-amber-400 p-2 rounded-full shadow-lg backdrop-blur-md border border-slate-700 flex items-center justify-center" title="Ubah Layout">
-            <svg id="orientationIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button onclick="toggleOrientationMode()" class="bg-slate-900/85 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md border border-slate-700 flex items-center justify-center" title="Ubah Posisi Layout">
+            <svg id="orientationIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </button>
         </div>
 
         <!-- Live Watermark Overlay -->
-        <div id="liveOverlayBox" class="absolute bg-black/85 backdrop-blur-sm p-2 rounded-xl border border-white/15 text-white pointer-events-none z-20 flex gap-2 items-center transition-all duration-300 shadow-xl">
-          <img id="liveMapImg" src="" alt="Map" class="w-16 h-16 rounded-lg object-cover border border-white/30 shrink-0 hidden">
+        <div id="liveOverlayBox" class="absolute bg-black/85 backdrop-blur-sm p-2.5 rounded-xl border border-white/15 text-white pointer-events-none z-10 flex gap-2.5 items-center transition-all duration-300 shadow-xl">
+          <img id="liveMapImg" src="" alt="Map" class="w-20 h-20 rounded-lg object-cover border border-white/30 shrink-0 hidden">
           <div class="flex-1 min-w-0">
-            <div class="text-amber-400 font-bold text-[10px] mb-0.5">📍 GPS Camera</div>
-            <div id="liveAddress" class="text-[8.5px] text-slate-200 leading-tight mb-1 multi-line-address">Memuat alamat...</div>
-            <div id="liveLatLon" class="text-[9px] text-sky-400 font-mono">Lat: 0.0, Lon: 0.0</div>
-            <div id="liveDateTime" class="text-[8px] text-slate-300 mt-0.5">---</div>
+            <div class="text-amber-400 font-bold text-[10.5px] mb-0.5">📍 GPS MAP Camera</div>
+            <div id="liveAddress" class="text-[9px] text-slate-200 leading-tight mb-1 multi-line-address">Memuat alamat lokasi...</div>
+            <div id="liveLatLon" class="text-[9.5px] text-sky-400 font-mono">Lat: 0.00000, Lon: 0.00000</div>
+            <div id="liveDateTime" class="text-[8.5px] text-slate-300 mt-0.5">---</div>
           </div>
         </div>
 
         <!-- Logo Container -->
-        <div id="liveLogoContainer" class="absolute pointer-events-none z-20 transition-all duration-300">
-          <img id="liveLogoImg" src="logo.png" alt="Logo" class="h-9 w-auto drop-shadow-md filter brightness-[1.5]">
+        <div id="liveLogoContainer" class="absolute pointer-events-none z-10 transition-all duration-300">
+          <img id="liveLogoImg" src="logo.png" alt="Logo" class="h-11 w-auto drop-shadow-md filter brightness-[1.5]">
         </div>
 
       </div>
@@ -199,12 +198,12 @@
         cameraWrapper.classList.remove('mode-portrait');
         cameraWrapper.classList.add('mode-landscape');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape Aktif', showConfirmButton: false, timer: 1200 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Alternatif (Logo di Bawah Kiri, Watermark di Bawah Kanan)', showConfirmButton: false, timer: 1500 });
       } else {
         cameraWrapper.classList.remove('mode-landscape');
         cameraWrapper.classList.add('mode-portrait');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Portrait Aktif', showConfirmButton: false, timer: 1200 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Standar Portrait', showConfirmButton: false, timer: 1500 });
       }
     }
 
@@ -441,36 +440,32 @@
 
       const vWidth = videoElement.videoWidth;
       const vHeight = videoElement.videoHeight;
-      
-      // Ukuran Canvas Output Berdasarkan Mode Orientasi
-      let targetWidth, targetHeight;
-      if (layoutOrientation === 'landscape') {
-        targetWidth = 1200;
-        targetHeight = 675; // Rasio Widescreen Landscape (16:9)
-      } else {
-        targetWidth = 900;
-        targetHeight = 1200; // Rasio Portrait
-      }
+      const cWidth = videoElement.clientWidth;
+      const cHeight = videoElement.clientHeight;
 
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      const ctx = canvas.getContext('2d');
-
-      const targetRatio = targetWidth / targetHeight;
       const vRatio = vWidth / vHeight;
+      const cRatio = cWidth / cHeight;
 
       let sWidth, sHeight, sx, sy;
-      if (vRatio > targetRatio) {
+      if (vRatio > cRatio) {
         sHeight = vHeight;
-        sWidth = vHeight * targetRatio;
+        sWidth = vHeight * cRatio;
         sx = (vWidth - sWidth) / 2;
         sy = 0;
       } else {
         sWidth = vWidth;
-        sHeight = vWidth / targetRatio;
+        sHeight = vWidth / cRatio;
         sx = 0;
         sy = (vHeight - sHeight) / 2;
       }
+
+      // Ukuran Canvas Standar Asli (Proporsional)
+      const targetWidth = 1000;
+      const targetHeight = Math.round(targetWidth / cRatio);
+
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext('2d');
 
       if (currentFacingMode === 'user') {
         ctx.save();
@@ -488,15 +483,16 @@
         logoImg.crossOrigin = "anonymous";
         logoImg.onload = () => {
           const logoPadding = Math.round(5 * scale); 
-          const logoHeight = Math.round(35 * scale);
+          const logoHeight = Math.round(40 * scale);
           const logoWidth = Math.round(logoHeight * (logoImg.width / logoImg.height));
           
-          // Posisi Logo di Canvas (Sama Persis dengan Tampilan Live)
           let logoX, logoY;
           if (layoutOrientation === 'landscape') {
+            // Mode Alternatif: Logo di Bawah Kiri
             logoX = Math.round(15 * scale);
-            logoY = Math.round(15 * scale);
+            logoY = canvas.height - logoHeight - Math.round(15 * scale);
           } else {
+            // Mode Portrait: Logo di Atas Kiri
             logoX = Math.round(15 * scale);
             logoY = Math.round(15 * scale);
           }
@@ -509,7 +505,7 @@
           ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
           if (typeof ctx.roundRect === 'function') {
             ctx.beginPath();
-            ctx.roundRect(bgX, bgY, bgWidth, bgHeight, Math.round(6 * scale));
+            ctx.roundRect(bgX, bgY, bgWidth, bgHeight, Math.round(8 * scale));
             ctx.fill();
           } else {
             ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
@@ -535,13 +531,13 @@
       let boxWidth, boxHeight, boxX, boxY;
 
       if (layoutOrientation === 'landscape') {
-        // Mode Landscape: Watermark di Kanan Bawah
-        boxWidth = Math.round(300 * scale);
-        boxHeight = Math.round(125 * scale);
+        // Mode Alternatif: Watermark Card di Bawah Kanan
+        boxWidth = Math.round(320 * scale);
+        boxHeight = Math.round(135 * scale);
         boxX = width - boxWidth - Math.round(15 * scale);
         boxY = canvas.height - boxHeight - Math.round(15 * scale);
       } else {
-        // Mode Portrait: Watermark Melebar di Bawah
+        // Mode Portrait: Watermark Melebar Penuh di Bawah
         boxHeight = Math.round(135 * scale);
         boxY = canvas.height - boxHeight - Math.round(15 * scale);
         boxX = Math.round(15 * scale);
@@ -551,7 +547,7 @@
       ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
       if (typeof ctx.roundRect === 'function') {
         ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, Math.round(10 * scale));
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, Math.round(12 * scale));
         ctx.fill();
       } else {
         ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
@@ -560,13 +556,13 @@
       if (mapDataUrl) {
         const mapImg = new Image();
         mapImg.onload = () => {
-          const mapSize = Math.round(95 * scale);
-          const mapX = boxX + Math.round(10 * scale);
+          const mapSize = Math.round(110 * scale);
+          const mapX = boxX + Math.round(12 * scale);
           const mapY = boxY + Math.round(12 * scale);
 
           ctx.save();
           ctx.beginPath();
-          if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(6 * scale));
+          if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale));
           ctx.clip();
           ctx.drawImage(mapImg, mapX, mapY, mapSize, mapSize);
           ctx.restore();
@@ -574,12 +570,12 @@
           ctx.strokeStyle = "#FFFFFF";
           ctx.lineWidth = 1.5;
           if (typeof ctx.roundRect === 'function') {
-            ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(6 * scale)); ctx.stroke();
+            ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale)); ctx.stroke();
           } else {
             ctx.strokeRect(mapX, mapY, mapSize, mapSize);
           }
 
-          drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, mapSize + Math.round(20 * scale));
+          drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, mapSize + Math.round(24 * scale));
         };
         mapImg.src = mapDataUrl;
       } else {
@@ -589,26 +585,26 @@
 
     function drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, textOffsetX) {
       const contentX = boxX + textOffsetX;
-      const maxTextWidth = boxWidth - textOffsetX - Math.round(10 * scale);
+      const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * scale);
       
       ctx.fillStyle = "#F59E0B";
-      ctx.font = "bold " + Math.round(10.5 * scale) + "px sans-serif";
-      ctx.fillText("📍 GPS Camera", contentX, boxY + Math.round(20 * scale));
+      ctx.font = "bold " + Math.round(11 * scale) + "px sans-serif";
+      ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * scale));
 
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = Math.round(9 * scale) + "px sans-serif";
-      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(35 * scale), maxTextWidth, Math.round(12 * scale));
+      ctx.font = Math.round(9.5 * scale) + "px sans-serif";
+      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * scale), maxTextWidth, Math.round(13 * scale));
 
       ctx.fillStyle = "#38BDF8";
-      ctx.font = "bold " + Math.round(9.5 * scale) + "px monospace";
-      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(5)} Lon ${currentUserGps.lon.toFixed(5)}`, contentX, boxY + Math.round(88 * scale));
+      ctx.font = "bold " + Math.round(10 * scale) + "px monospace";
+      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * scale));
 
       const now = getRealTime();
-      const tanggalStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric' }) + " " + now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false });
+      const tanggalStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + " " + now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + " GMT +07:00";
       
       ctx.fillStyle = "#CBD5E1";
-      ctx.font = Math.round(8.5 * scale) + "px sans-serif";
-      ctx.fillText(tanggalStr, contentX, boxY + Math.round(108 * scale));
+      ctx.font = Math.round(9 * scale) + "px sans-serif";
+      ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * scale));
 
       finalizeCanvasImage();
     }
@@ -625,7 +621,7 @@
         let metrics = context.measureText(testLine);
         let testWidth = metrics.width;
         if (testWidth > maxWidth && n > 0) {
-          if (lineCount < 2) {
+          if (lineCount < 3) {
             context.fillText(line, x, currentY);
             line = words[n] + ' ';
             currentY += lineHeight;
