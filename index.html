@@ -42,7 +42,7 @@
       transform: none;
     }
 
-    /* 2. Mode Landscape (Sinkron persis dengan Canvas) */
+    /* 2. Mode Landscape */
     .mode-landscape #liveControlsContainer {
       top: 12px;
       left: 12px;
@@ -516,7 +516,7 @@
         ctx.drawImage(videoElement, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
       }
 
-      // Faktor skala persisi proporsional agar 100% sinkron dengan CSS live view
+      // Faktor skala proporsional akurat
       const r = targetWidth / cWidth;
 
       if (LOGO_URL) {
@@ -529,7 +529,7 @@
           
           ctx.save();
           if (layoutOrientation === 'landscape') {
-            // Sinkron persis dengan CSS: bottom: 20px; left: 20px;
+            // Sinkron presisi matriks canvas dengan CSS: bottom: 20px; left: 20px; rotate(-90deg)
             let logoX = Math.round(20 * r);
             let logoY = canvas.height - Math.round(20 * r);
             ctx.translate(logoX, logoY);
@@ -541,12 +541,12 @@
             ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
             if (typeof ctx.roundRect === 'function') {
               ctx.beginPath();
-              ctx.roundRect(0, 0, bgWidth, bgHeight, Math.round(8 * r));
+              ctx.roundRect(0, -bgHeight, bgWidth, bgHeight, Math.round(8 * r));
               ctx.fill();
             } else {
-              ctx.fillRect(0, 0, bgWidth, bgHeight);
+              ctx.fillRect(0, -bgHeight, bgWidth, bgHeight);
             }
-            ctx.drawImage(logoImg, logoPadding, logoPadding, logoWidth, logoHeight);
+            ctx.drawImage(logoImg, logoPadding, -bgHeight + logoPadding, logoWidth, logoHeight);
           } else {
             // Mode Portrait: top: 12px; left: 12px;
             let logoX = Math.round(12 * r);
@@ -582,7 +582,7 @@
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        // Sinkron persis dengan CSS: bottom: 20px; right: 20px; width: 290px;
+        // Sinkron presisi matriks canvas dengan CSS: bottom: 20px; right: 20px; width: 290px; rotate(-90deg)
         const boxWidth = Math.round(290 * r);
         const boxHeight = Math.round(135 * r);
         
@@ -595,17 +595,17 @@
         ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
-          ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(12 * r));
+          ctx.roundRect(0, -boxHeight, boxWidth, boxHeight, Math.round(12 * r));
           ctx.fill();
         } else {
-          ctx.fillRect(-boxWidth, -boxHeight, boxWidth, boxHeight);
+          ctx.fillRect(0, -boxHeight, boxWidth, boxHeight);
         }
 
         if (mapDataUrl) {
           const mapImg = new Image();
           mapImg.onload = () => {
             const mapSize = Math.round(110 * r);
-            const mapX = -boxWidth + Math.round(12 * r);
+            const mapX = Math.round(12 * r);
             const mapY = -boxHeight + Math.round(12 * r);
 
             ctx.save();
@@ -623,12 +623,12 @@
               ctx.strokeRect(mapX, mapY, mapSize, mapSize);
             }
 
-            drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, mapSize + Math.round(24 * r));
+            drawRotatedWatermarkText(ctx, 0, -boxHeight, boxWidth, r, mapSize + Math.round(24 * r));
             ctx.restore();
           };
           mapImg.src = mapDataUrl;
         } else {
-          drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, Math.round(15 * r));
+          drawRotatedWatermarkText(ctx, 0, -boxHeight, boxWidth, r, Math.round(15 * r));
           ctx.restore();
         }
 
