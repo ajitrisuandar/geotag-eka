@@ -50,13 +50,13 @@
     }
     .mode-landscape #liveLogoContainer {
       bottom: 45px;
-      left: 20px;
+      left: 45px;
       top: auto;
       transform: rotate(-90deg);
       transform-origin: bottom left;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 75px;
+      bottom: 250px;
       right: 70px;
       left: auto;
       top: auto;
@@ -556,7 +556,7 @@
         ctx.save();
         // Titik translasi disesuaikan agar pas di tengah bawah area canvas
         const transX = width - Math.round(75 * scale);
-        const transY = canvas.height - Math.round(55 * scale);
+        const transY = canvas.height - Math.round(75 * scale);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
