@@ -42,22 +42,22 @@
       transform: none;
     }
 
-    /* 2. Mode Landscape */
+    /* 2. Mode Landscape (Sinkron persis dengan Canvas) */
     .mode-landscape #liveControlsContainer {
       top: 12px;
       left: 12px;
       right: auto;
     }
     .mode-landscape #liveLogoContainer {
-      bottom: 45px;
-      left: 45px;
+      bottom: 20px;
+      left: 20px;
       top: auto;
       transform: rotate(-90deg);
       transform-origin: bottom left;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 350px;
-      right: 45px;
+      bottom: 20px;
+      right: 20px;
       left: auto;
       top: auto;
       width: 290px;
@@ -86,7 +86,7 @@
 
     <!-- 2. Kotak Kamera Live & Watermark Overlay -->
     <div id="liveCameraContainer" class="w-full hidden flex flex-col items-center relative">
-      <!-- cameraViewWrapper memiliki event onclick untuk Fokus Kamera -->
+      <!-- cameraViewWrapper memiliki event onclick untuk Tap to Focus -->
       <div id="cameraViewWrapper" onclick="triggerAutoFocus()" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait cursor-pointer">
         
         <!-- Elemen Video Live -->
@@ -516,7 +516,7 @@
         ctx.drawImage(videoElement, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
       }
 
-      // Faktor skala presisi proporsional berdasarkan ukuran live view CSS
+      // Faktor skala persisi proporsional agar 100% sinkron dengan CSS live view
       const r = targetWidth / cWidth;
 
       if (LOGO_URL) {
@@ -529,9 +529,9 @@
           
           ctx.save();
           if (layoutOrientation === 'landscape') {
-            // Sinkron persis dengan CSS: bottom: 45px; left: 45px;
-            let logoX = Math.round(45 * r);
-            let logoY = canvas.height - Math.round(45 * r);
+            // Sinkron persis dengan CSS: bottom: 20px; left: 20px;
+            let logoX = Math.round(20 * r);
+            let logoY = canvas.height - Math.round(20 * r);
             ctx.translate(logoX, logoY);
             ctx.rotate(-Math.PI / 2);
 
@@ -582,13 +582,13 @@
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        // Sinkron persis dengan CSS: bottom: 350px; right: 45px; width: 290px;
+        // Sinkron persis dengan CSS: bottom: 20px; right: 20px; width: 290px;
         const boxWidth = Math.round(290 * r);
         const boxHeight = Math.round(135 * r);
         
         ctx.save();
-        const transX = width - Math.round(45 * r);
-        const transY = canvas.height - Math.round(350 * r);
+        const transX = width - Math.round(20 * r);
+        const transY = canvas.height - Math.round(20 * r);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
