@@ -19,7 +19,7 @@
       overflow: hidden;
     }
 
-    /* --- PENGATURAN POSISI & ROTASI UI LIVE VIEW --- */
+    /* --- PENGATURAN POSISI UI LIVE VIEW --- */
 
     /* 1. Mode Portrait (Default) */
     .mode-portrait #liveControlsContainer {
@@ -42,22 +42,22 @@
       transform: none;
     }
 
-    /* 2. Mode Landscape (Tombol Kiri Atas, Logo Kiri Bawah, Watermark Kanan Bawah - Dinaikkan & Diputar) */
+    /* 2. Mode Landscape (Tombol Kiri Atas, Logo Kiri Bawah, Watermark Kanan Bawah - Diputar 90°) */
     .mode-landscape #liveControlsContainer {
       top: 12px;
       left: 12px;
       right: auto;
     }
     .mode-landscape #liveLogoContainer {
-      bottom: 45px;
-      left: 20px;
+      bottom: 40px;
+      left: 40px;
       top: auto;
       transform: rotate(-90deg);
       transform-origin: bottom left;
     }
     .mode-landscape #liveOverlayBox {
-      bottom: 45px;
-      right: 20px;
+      bottom: auto;
+      right: 40px;
       left: auto;
       top: auto;
       width: 300px;
@@ -206,7 +206,7 @@
         cameraWrapper.classList.remove('mode-portrait');
         cameraWrapper.classList.add('mode-landscape');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape (Watermark Dinaikkan & Diputar)', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape Aktif (Logo Kiri Bawah, Watermark Kanan Bawah)', showConfirmButton: false, timer: 1500 });
       } else {
         cameraWrapper.classList.remove('mode-landscape');
         cameraWrapper.classList.add('mode-portrait');
@@ -496,9 +496,9 @@
           
           ctx.save();
           if (layoutOrientation === 'landscape') {
-            // Mode Landscape: Logo di Kiri Bawah & Diputar -90° (Dinaikkan agar aman di dalam canvas)
-            let logoX = Math.round(20 * scale);
-            let logoY = canvas.height - Math.round(35 * scale);
+            // Mode Landscape: Logo di Kiri Bawah & Diputar -90° (Tegak Sesuai Arah HP Miring)
+            let logoX = Math.round(15 * scale);
+            let logoY = canvas.height - Math.round(15 * scale);
             ctx.translate(logoX, logoY);
             ctx.rotate(-Math.PI / 2);
 
@@ -549,18 +549,18 @@
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        // Mode Landscape: Watermark Card di Kanan Bawah & Diputar -90° (Dinaikkan agar di dalam canvas)
+        // Mode Landscape: Watermark Card di Kanan Bawah & Diputar -90° di dalam batas canvas
         const boxWidth = Math.round(320 * scale);
         const boxHeight = Math.round(135 * scale);
         
         ctx.save();
-        // Titik translasi digeser agak ke atas (margin lebih besar dari bawah)
-        const transX = width - Math.round(20 * scale);
-        const transY = canvas.height - Math.round(35 * scale);
+        // Titik translasi di sudut Kanan Bawah Canvas dengan margin aman
+        const transX = width - Math.round(15 * scale);
+        const transY = canvas.height - Math.round(15 * scale);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
-        // Render kotak background watermark
+        // Render kotak background watermark di dalam area positif lokal setelah rotasi
         ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
