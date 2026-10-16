@@ -530,8 +530,8 @@
           ctx.save();
           if (layoutOrientation === 'landscape') {
             // Sinkron persis dengan CSS: bottom: 45px; left: 45px;
-            let logoX = Math.round(45 * r);
-            let logoY = canvas.height - Math.round(45 * r);
+            let logoX = Math.round(25 * r);
+            let logoY = canvas.height - Math.round(25 * r);
             ctx.translate(logoX, logoY);
             ctx.rotate(-Math.PI / 2);
 
@@ -583,7 +583,7 @@
 
       if (layoutOrientation === 'landscape') {
         // Sinkron persis dengan CSS: bottom: 350px; right: 45px; width: 290px;
-        const boxWidth = Math.round(300 * r);
+        const boxWidth = Math.round(400 * r);
         const boxHeight = Math.round(135 * r);
         
         ctx.save();
@@ -592,7 +592,7 @@
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
           ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(12 * r));
