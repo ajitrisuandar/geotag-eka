@@ -19,9 +19,12 @@
       overflow: hidden;
     }
 
-    /* --- PENGATURAN POSISI UI BERDASARKAN MODE --- */
+    /* --- PENGATURAN UI BERDASARKAN ORIENTASI --- */
 
     /* 1. Mode Portrait (Default) */
+    .mode-portrait #videoElement {
+      height: 540px;
+    }
     .mode-portrait #liveControlsContainer {
       top: 12px;
       right: 12px;
@@ -41,7 +44,10 @@
       width: auto;
     }
 
-    /* 2. Mode Landscape (Logo di Kiri Atas, Watermark di Kanan Atas) */
+    /* 2. Mode Landscape (Kotak Kamera Mendatar, Logo Kiri Atas, Watermark Kanan Atas) */
+    .mode-landscape #videoElement {
+      height: 310px; /* Kamera menjadi lebih pendek & melebar */
+    }
     .mode-landscape #liveControlsContainer {
       bottom: 12px;
       left: 12px;
@@ -86,7 +92,7 @@
       <div id="cameraViewWrapper" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait">
         
         <!-- Elemen Video Live -->
-        <video id="videoElement" autoplay playsinline muted class="w-full h-[75vh] max-h-[750px] object-cover"></video>
+        <video id="videoElement" autoplay playsinline muted class="w-full object-cover transition-all duration-300"></video>
         
         <!-- Tombol Kontrol (Ganti Kamera & Toggle Mode) -->
         <div id="liveControlsContainer" class="absolute flex gap-2 z-20 transition-all duration-300">
@@ -206,7 +212,7 @@
         cameraWrapper.classList.remove('mode-portrait');
         cameraWrapper.classList.add('mode-landscape');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Landscape Aktif (Logo: Kiri Atas, Watermark: Kanan Atas)', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Landscape (Logo: Kiri Atas, Watermark: Kanan Atas)', showConfirmButton: false, timer: 1500 });
       } else {
         cameraWrapper.classList.remove('mode-landscape');
         cameraWrapper.classList.add('mode-portrait');
@@ -449,14 +455,14 @@
       const vWidth = videoElement.videoWidth;
       const vHeight = videoElement.videoHeight;
       
-      // Tentukan ukuran target canvas berdasarkan orientasi (Portrait vs Landscape Asli)
+      // Tentukan resolusi canvas sesuai mode orientasi
       let targetWidth, targetHeight;
       if (layoutOrientation === 'landscape') {
         targetWidth = 1200;
-        targetHeight = 675; // Rasio landscape 16:9
+        targetHeight = 675; // Rasio Landscape (16:9)
       } else {
         targetWidth = 900;
-        targetHeight = 1200; // Rasio portrait
+        targetHeight = 1200; // Rasio Portrait
       }
 
       canvas.width = targetWidth;
@@ -500,11 +506,11 @@
           
           let logoX, logoY;
           if (layoutOrientation === 'landscape') {
-            // Mode Landscape: Logo di Kiri Atas
+            // Landscape: Logo di Kiri Atas
             logoX = Math.round(20 * scale);
             logoY = Math.round(20 * scale);
           } else {
-            // Mode Portrait: Logo di Atas Kiri
+            // Portrait: Logo di Atas Kiri
             logoX = Math.round(15 * scale);
             logoY = Math.round(15 * scale);
           }
@@ -543,13 +549,13 @@
       let boxWidth, boxHeight, boxX, boxY;
 
       if (layoutOrientation === 'landscape') {
-        // Mode Landscape: Watermark Card di Kanan Atas
+        // Landscape: Watermark Card di Kanan Atas
         boxWidth = Math.round(340 * scale);
         boxHeight = Math.round(135 * scale);
         boxX = width - boxWidth - Math.round(20 * scale);
         boxY = Math.round(20 * scale);
       } else {
-        // Mode Portrait: Watermark Melebar Penuh di Bawah
+        // Portrait: Watermark Melebar Penuh di Bawah
         boxHeight = Math.round(135 * scale);
         boxY = canvas.height - boxHeight - Math.round(15 * scale);
         boxX = Math.round(15 * scale);
