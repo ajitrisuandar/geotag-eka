@@ -404,11 +404,12 @@
           mediaStream.getTracks().forEach(track => track.stop());
         }
 
+        // Ditingkatkan ke resolusi ideal Full HD (1920x1080) agar kamera jauh lebih tajam dan jernih
         const constraints = {
           video: {
             facingMode: { ideal: currentFacingMode },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
             focusMode: { ideal: "continuous" }
           },
           audio: false
@@ -501,7 +502,8 @@
         sy = (vHeight - sHeight) / 2;
       }
 
-      const targetWidth = 1000;
+      // Target resolusi canvas ditingkatkan ke 1920 (Full HD) agar foto hasil unduhan sangat tajam dan tidak pecah
+      const targetWidth = 1920;
       const targetHeight = Math.round(targetWidth / cRatio);
 
       canvas.width = targetWidth;
@@ -580,7 +582,6 @@
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        // Ukuran kotak watermark landscape diperkecil proporsional
         const boxWidth = Math.round(280 * r);
         const boxHeight = Math.round(105 * r);
         
@@ -590,7 +591,7 @@
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
           ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(10 * r));
@@ -602,7 +603,7 @@
         if (mapDataUrl) {
           const mapImg = new Image();
           mapImg.onload = () => {
-            const mapSize = Math.round(85 * r); // Ukuran peta kecil diperkecil
+            const mapSize = Math.round(85 * r);
             const mapX = -boxWidth + Math.round(10 * r);
             const mapY = -boxHeight + Math.round(10 * r);
 
@@ -631,7 +632,6 @@
         }
 
       } else {
-        // Mode Portrait: Ukuran kotak watermark diperkecil
         const boxHeight = Math.round(100 * r);
         const boxY = canvas.height - boxHeight - Math.round(12 * r);
         const boxX = Math.round(12 * r);
@@ -649,7 +649,7 @@
         if (mapDataUrl) {
           const mapImg = new Image();
           mapImg.onload = () => {
-            const mapSize = Math.round(76 * r); // Ukuran peta kecil diperkecil
+            const mapSize = Math.round(76 * r);
             const mapX = boxX + Math.round(10 * r);
             const mapY = boxY + Math.round(10 * r);
 
@@ -681,7 +681,6 @@
       const contentX = boxX + textOffsetX;
       const maxTextWidth = boxWidth - textOffsetX - Math.round(10 * r);
       
-      // Ukuran font dan posisi vertikal disesuaikan lebih kecil & rapat
       ctx.fillStyle = "#F59E0B";
       ctx.font = "bold " + Math.round(9 * r) + "px sans-serif";
       ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(18 * r));
@@ -760,7 +759,8 @@
 
     function finalizeCanvasImage() {
       const canvas = document.getElementById('cameraCanvas');
-      finalWatermarkedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      // Kualitas kompresi ditingkatkan menjadi 0.95 (95%) untuk hasil gambar yang sangat jernih
+      finalWatermarkedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
       if (mediaStream) {
         mediaStream.getTracks().forEach(track => track.stop());
