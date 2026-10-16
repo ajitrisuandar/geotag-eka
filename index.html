@@ -18,6 +18,27 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+
+    /* Transformasi Khusus Mode Landscape UI Overlay */
+    .mode-landscape #liveLogoContainer {
+      top: auto !important;
+      left: 12px !important;
+      bottom: 12px !important;
+    }
+
+    .mode-landscape #liveControlsContainer {
+      top: 12px !important;
+      right: auto !important;
+      left: 12px !important;
+      flex-direction: column !important;
+    }
+
+    .mode-landscape #liveOverlayBox {
+      left: auto !important;
+      right: 12px !important;
+      bottom: 12px !important;
+      width: 320px !important;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-between p-3 font-sans">
@@ -40,38 +61,41 @@
 
     <!-- 2. Kotak Kamera Live & Watermark Overlay -->
     <div id="liveCameraContainer" class="w-full hidden flex flex-col items-center relative">
-      <div class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative">
-        <!-- Elemen Video Live (Dipertinggi agar maksimal) -->
-        <video id="videoElement" autoplay playsinline muted class="w-full h-[72vh] max-h-[720px] object-cover"></video>
+      <div id="cameraViewWrapper" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait">
+        <!-- Elemen Video Live -->
+        <video id="videoElement" autoplay playsinline muted class="w-full h-[75vh] max-h-[750px] object-cover"></video>
         
-        <!-- Tombol Ganti Kamera -->
-        <button onclick="switchCamera()" class="absolute top-3 right-3 bg-slate-900/80 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md transition duration-200 border border-slate-700 flex items-center justify-center z-10" title="Ganti Kamera">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
+        <!-- Tombol Kontrol (Ganti Kamera & Toggle Mode Orientasi) -->
+        <div id="liveControlsContainer" class="absolute top-3 right-3 flex gap-2 z-20">
+          <!-- Tombol Switch Camera -->
+          <button onclick="switchCamera()" class="bg-slate-900/80 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md transition duration-200 border border-slate-700 flex items-center justify-center" title="Ganti Kamera">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
 
-        <!-- Tombol Toggle Mode Orientasi (Portrait / Landscape) -->
-        <button onclick="toggleOrientationMode()" class="absolute top-3 right-16 bg-slate-900/80 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md transition duration-200 border border-slate-700 flex items-center justify-center z-10" title="Ubah Mode Watermark (Portrait/Landscape)">
-          <svg id="orientationIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
-        </button>
+          <!-- Tombol Toggle Mode Orientasi -->
+          <button onclick="toggleOrientationMode()" class="bg-slate-900/80 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md transition duration-200 border border-slate-700 flex items-center justify-center" title="Ubah Layout (Portrait / Landscape)">
+            <svg id="orientationIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </button>
+        </div>
 
-        <!-- Live Watermark Overlay (Dinamis Portrait / Landscape) -->
+        <!-- Live Watermark Overlay -->
         <div id="liveOverlayBox" class="absolute bottom-2 left-2 right-2 bg-black/85 backdrop-blur-sm p-2.5 rounded-xl border border-white/15 text-white pointer-events-none z-10 flex gap-2.5 items-center transition-all duration-300">
-          <img id="liveMapImg" src="" alt="Map" class="w-24 h-24 rounded-lg object-cover border border-white/30 shrink-0 hidden">
+          <img id="liveMapImg" src="" alt="Map" class="w-20 h-20 rounded-lg object-cover border border-white/30 shrink-0 hidden">
           <div class="flex-1 min-w-0">
-            <div class="text-amber-400 font-bold text-[11px] mb-0.5">📍 GPS MAP Camera Excellent Kencana</div>
-            <div id="liveAddress" class="text-[9.5px] text-slate-200 leading-tight mb-1 multi-line-address">Memuat alamat lokasi...</div>
-            <div id="liveLatLon" class="text-[10px] text-sky-400 font-mono">Lat: 0.00000, Lon: 0.00000</div>
-            <div id="liveDateTime" class="text-[9px] text-slate-300 mt-0.5">---</div>
+            <div class="text-amber-400 font-bold text-[10.5px] mb-0.5">📍 GPS MAP Camera Excellent Kencana</div>
+            <div id="liveAddress" class="text-[9px] text-slate-200 leading-tight mb-1 multi-line-address">Memuat alamat lokasi...</div>
+            <div id="liveLatLon" class="text-[9.5px] text-sky-400 font-mono">Lat: 0.00000, Lon: 0.00000</div>
+            <div id="liveDateTime" class="text-[8.5px] text-slate-300 mt-0.5">---</div>
           </div>
         </div>
 
-        <!-- Logo di Pojok Kiri Atas Live Video -->
-        <div class="absolute top-3 left-3 pointer-events-none z-10">
-          <img id="liveLogoImg" src="logo.png" alt="Logo" class="h-12 w-auto drop-shadow-md filter brightness-[1.5]">
+        <!-- Logo -->
+        <div id="liveLogoContainer" class="absolute top-3 left-3 pointer-events-none z-10 transition-all duration-300">
+          <img id="liveLogoImg" src="logo.png" alt="Logo" class="h-11 w-auto drop-shadow-md filter brightness-[1.5]">
         </div>
       </div>
 
@@ -91,7 +115,7 @@
         <img id="geotagPreviewImg" src="" alt="Preview Geotag" class="w-full object-contain">
       </div>
 
-      <!-- Tombol Aksi (Download & Ambil Ulang) -->
+      <!-- Tombol Aksi -->
       <div class="flex w-full gap-3">
         <button onclick="retakePhoto()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl transition duration-200 text-sm border border-slate-700">
           🔄 Ambil Ulang
@@ -102,7 +126,7 @@
       </div>
     </div>
 
-    <!-- Canvas Tersembunyi untuk Render Gambar Akhir -->
+    <!-- Canvas Tersembunyi -->
     <canvas id="cameraCanvas" class="hidden"></canvas>
 
   </main>
@@ -121,7 +145,7 @@
     let mediaStream = null;
     let serverTimeOffset = 0;
     let currentFacingMode = 'environment';
-    let layoutOrientation = 'portrait'; // 'portrait' atau 'landscape'
+    let layoutOrientation = 'portrait'; // 'portrait' | 'landscape'
     const LOGO_URL = "logo.png"; 
 
     document.addEventListener("DOMContentLoaded", async function() {
@@ -151,18 +175,19 @@
 
     function toggleOrientationMode() {
       layoutOrientation = layoutOrientation === 'portrait' ? 'landscape' : 'portrait';
-      
-      const overlayBox = document.getElementById('liveOverlayBox');
+      const cameraWrapper = document.getElementById('cameraViewWrapper');
       const icon = document.getElementById('orientationIcon');
 
       if (layoutOrientation === 'landscape') {
-        overlayBox.className = "absolute bottom-2 right-2 w-[350px] bg-black/85 backdrop-blur-sm p-2.5 rounded-xl border border-white/15 text-white pointer-events-none z-10 flex gap-2.5 items-center shadow-lg transition-all duration-300";
+        cameraWrapper.classList.remove('mode-portrait');
+        cameraWrapper.classList.add('mode-landscape');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape Aktif', showConfirmButton: false, timer: 1200 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Landscape Aktif', showConfirmButton: false, timer: 1200 });
       } else {
-        overlayBox.className = "absolute bottom-2 left-2 right-2 bg-black/85 backdrop-blur-sm p-2.5 rounded-xl border border-white/15 text-white pointer-events-none z-10 flex gap-2.5 items-center shadow-lg transition-all duration-300";
+        cameraWrapper.classList.remove('mode-landscape');
+        cameraWrapper.classList.add('mode-portrait');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Portrait Aktif', showConfirmButton: false, timer: 1200 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Layout Portrait Aktif', showConfirmButton: false, timer: 1200 });
       }
     }
 
@@ -441,10 +466,19 @@
         logoImg.crossOrigin = "anonymous";
         logoImg.onload = () => {
           const logoPadding = Math.round(5 * scale); 
-          const logoHeight = Math.round(42 * scale);
+          const logoHeight = Math.round(40 * scale);
           const logoWidth = Math.round(logoHeight * (logoImg.width / logoImg.height));
-          const logoX = Math.round(15 * scale);
-          const logoY = Math.round(15 * scale);
+          
+          let logoX, logoY;
+          if (layoutOrientation === 'landscape') {
+            // Logo di Bawah Kiri
+            logoX = Math.round(15 * scale);
+            logoY = canvas.height - logoHeight - Math.round(15 * scale);
+          } else {
+            // Logo di Atas Kiri (Portrait)
+            logoX = Math.round(15 * scale);
+            logoY = Math.round(15 * scale);
+          }
 
           const bgWidth = logoWidth + (2 * logoPadding);
           const bgHeight = logoHeight + (2 * logoPadding);
@@ -454,7 +488,7 @@
           ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
           if (typeof ctx.roundRect === 'function') {
             ctx.beginPath();
-            ctx.roundRect(bgX, bgY, bgWidth, bgHeight, Math.round(10 * scale));
+            ctx.roundRect(bgX, bgY, bgWidth, bgHeight, Math.round(8 * scale));
             ctx.fill();
           } else {
             ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
@@ -480,13 +514,13 @@
       let boxWidth, boxHeight, boxX, boxY;
 
       if (layoutOrientation === 'landscape') {
-        // Mode Landscape: Kotak Watermark berupa Card di pojok kanan bawah
-        boxWidth = Math.round(420 * scale);
+        // Landscape: Bawah Kanan
+        boxWidth = Math.round(320 * scale);
         boxHeight = Math.round(135 * scale);
         boxX = width - boxWidth - Math.round(15 * scale);
         boxY = canvas.height - boxHeight - Math.round(15 * scale);
       } else {
-        // Mode Portrait: Kotak Watermark melebar penuh di bagian bawah
+        // Portrait: Bawah Penuh
         boxHeight = Math.round(135 * scale);
         boxY = canvas.height - boxHeight - Math.round(15 * scale);
         boxX = Math.round(15 * scale);
@@ -524,7 +558,7 @@
             ctx.strokeRect(mapX, mapY, mapSize, mapSize);
           }
 
-          drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, mapSize + Math.round(26 * scale));
+          drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, mapSize + Math.round(24 * scale));
         };
         mapImg.src = mapDataUrl;
       } else {
@@ -537,22 +571,22 @@
       const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * scale);
       
       ctx.fillStyle = "#F59E0B";
-      ctx.font = "bold " + Math.round(11.5 * scale) + "px sans-serif";
+      ctx.font = "bold " + Math.round(11 * scale) + "px sans-serif";
       ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * scale));
 
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = Math.round(10 * scale) + "px sans-serif";
-      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * scale), maxTextWidth, Math.round(13.5 * scale));
+      ctx.font = Math.round(9.5 * scale) + "px sans-serif";
+      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * scale), maxTextWidth, Math.round(13 * scale));
 
       ctx.fillStyle = "#38BDF8";
-      ctx.font = "bold " + Math.round(10.5 * scale) + "px monospace";
+      ctx.font = "bold " + Math.round(10 * scale) + "px monospace";
       ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * scale));
 
       const now = getRealTime();
       const tanggalStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + " " + now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + " GMT +07:00";
       
       ctx.fillStyle = "#CBD5E1";
-      ctx.font = Math.round(9.5 * scale) + "px sans-serif";
+      ctx.font = Math.round(9 * scale) + "px sans-serif";
       ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * scale));
 
       finalizeCanvasImage();
