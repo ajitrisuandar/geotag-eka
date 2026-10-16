@@ -581,16 +581,16 @@
 
       if (layoutOrientation === 'landscape') {
         // Ukuran kotak watermark landscape diperkecil proporsional
-        const boxWidth = Math.round(260 * r);
+        const boxWidth = Math.round(280 * r);
         const boxHeight = Math.round(105 * r);
         
         ctx.save();
         const transX = width - Math.round(35 * r);
-        const transY = canvas.height - Math.round(300 * r);
+        const transY = canvas.height - Math.round(500 * r);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
           ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(10 * r));
