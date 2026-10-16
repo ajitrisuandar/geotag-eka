@@ -408,7 +408,7 @@
             facingMode: { ideal: currentFacingMode },
             width: { ideal: 1280 },
             height: { ideal: 720 },
-            focusMode: { ideal: "continuous" } // Mengaktifkan Auto Focus Kontinu jika didukung
+            focusMode: { ideal: "continuous" }
           },
           audio: false
         };
@@ -441,7 +441,6 @@
       }
     }
 
-    // FUNGSIONALITAS TAP TO FOCUS (FOKUS SAAT LAYAR DIKLIK)
     async function triggerAutoFocus() {
       if (!videoTrack) return;
 
@@ -449,9 +448,7 @@
         const capabilities = videoTrack.getCapabilities ? videoTrack.getCapabilities() : {};
         
         if (capabilities.focusMode && capabilities.focusMode.includes('single-shot')) {
-          // Paksa memicu siklus fokus sekali
           await videoTrack.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] });
-          // Kembalikan ke otomatis setelah 1.5 detik
           setTimeout(() => {
             videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
           }, 1500);
@@ -459,7 +456,6 @@
           await videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
         }
         
-        // Notifikasi Toast kecil bahwa fokus dipicu
         Swal.fire({
           toast: true,
           position: 'top',
@@ -469,7 +465,7 @@
           timer: 1000
         });
       } catch (err) {
-        console.log("Tap-to-focus tidak didukung secara langsung oleh perangkat/browser ini:", err);
+        console.log("Tap-to-focus tidak didukung:", err);
       }
     }
 
@@ -504,7 +500,6 @@
         sy = (vHeight - sHeight) / 2;
       }
 
-      // Ukuran Canvas Standar Asli
       const targetWidth = 1000;
       const targetHeight = Math.round(targetWidth / cRatio);
 
@@ -521,20 +516,22 @@
         ctx.drawImage(videoElement, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
       }
 
-      const scale = targetWidth / 420;
+      // Faktor skala presisi proporsional berdasarkan ukuran live view CSS
+      const r = targetWidth / cWidth;
 
       if (LOGO_URL) {
         const logoImg = new Image();
         logoImg.crossOrigin = "anonymous";
         logoImg.onload = () => {
-          const logoPadding = Math.round(5 * scale); 
-          const logoHeight = Math.round(40 * scale);
+          const logoPadding = Math.round(5 * r); 
+          const logoHeight = Math.round(40 * r);
           const logoWidth = Math.round(logoHeight * (logoImg.width / logoImg.height));
           
           ctx.save();
           if (layoutOrientation === 'landscape') {
-            let logoX = Math.round(20 * scale);
-            let logoY = canvas.height - Math.round(35 * scale);
+            // Sinkron persis dengan CSS: bottom: 45px; left: 45px;
+            let logoX = Math.round(45 * r);
+            let logoY = canvas.height - Math.round(45 * r);
             ctx.translate(logoX, logoY);
             ctx.rotate(-Math.PI / 2);
 
@@ -544,22 +541,23 @@
             ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
             if (typeof ctx.roundRect === 'function') {
               ctx.beginPath();
-              ctx.roundRect(0, 0, bgWidth, bgHeight, Math.round(8 * scale));
+              ctx.roundRect(0, 0, bgWidth, bgHeight, Math.round(8 * r));
               ctx.fill();
             } else {
               ctx.fillRect(0, 0, bgWidth, bgHeight);
             }
             ctx.drawImage(logoImg, logoPadding, logoPadding, logoWidth, logoHeight);
           } else {
-            let logoX = Math.round(15 * scale);
-            let logoY = Math.round(15 * scale);
+            // Mode Portrait: top: 12px; left: 12px;
+            let logoX = Math.round(12 * r);
+            let logoY = Math.round(12 * r);
             const bgWidth = logoWidth + (2 * logoPadding);
             const bgHeight = logoHeight + (2 * logoPadding);
 
             ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
             if (typeof ctx.roundRect === 'function') {
               ctx.beginPath();
-              ctx.roundRect(logoX - logoPadding, logoY - logoPadding, bgWidth, bgHeight, Math.round(8 * scale));
+              ctx.roundRect(logoX - logoPadding, logoY - logoPadding, bgWidth, bgHeight, Math.round(8 * r));
               ctx.fill();
             } else {
               ctx.fillRect(logoX - logoPadding, logoY - logoPadding, bgWidth, bgHeight);
@@ -568,50 +566,51 @@
           }
           ctx.restore();
 
-          loadMapAndRenderWatermark(canvas, scale);
+          loadMapAndRenderWatermark(canvas, r);
         };
         logoImg.onerror = () => {
-          loadMapAndRenderWatermark(canvas, scale);
+          loadMapAndRenderWatermark(canvas, r);
         };
         logoImg.src = LOGO_URL;
       } else {
-        loadMapAndRenderWatermark(canvas, scale);
+        loadMapAndRenderWatermark(canvas, r);
       }
     }
 
-    function loadMapAndRenderWatermark(canvas, scale) {
+    function loadMapAndRenderWatermark(canvas, r) {
       const ctx = canvas.getContext('2d');
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        const boxWidth = Math.round(320 * scale);
-        const boxHeight = Math.round(135 * scale);
+        // Sinkron persis dengan CSS: bottom: 350px; right: 45px; width: 290px;
+        const boxWidth = Math.round(290 * r);
+        const boxHeight = Math.round(135 * r);
         
         ctx.save();
-        const transX = width - Math.round(90 * scale);
-        const transY = canvas.height - Math.round(90 * scale);
+        const transX = width - Math.round(45 * r);
+        const transY = canvas.height - Math.round(350 * r);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
-          ctx.roundRect(0, 0, boxWidth, boxHeight, Math.round(12 * scale));
+          ctx.roundRect(-boxWidth, -boxHeight, boxWidth, boxHeight, Math.round(12 * r));
           ctx.fill();
         } else {
-          ctx.fillRect(0, 0, boxWidth, boxHeight);
+          ctx.fillRect(-boxWidth, -boxHeight, boxWidth, boxHeight);
         }
 
         if (mapDataUrl) {
           const mapImg = new Image();
           mapImg.onload = () => {
-            const mapSize = Math.round(110 * scale);
-            const mapX = Math.round(12 * scale);
-            const mapY = Math.round(12 * scale);
+            const mapSize = Math.round(110 * r);
+            const mapX = -boxWidth + Math.round(12 * r);
+            const mapY = -boxHeight + Math.round(12 * r);
 
             ctx.save();
             ctx.beginPath();
-            if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale));
+            if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * r));
             ctx.clip();
             ctx.drawImage(mapImg, mapX, mapY, mapSize, mapSize);
             ctx.restore();
@@ -619,30 +618,31 @@
             ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = 1.5;
             if (typeof ctx.roundRect === 'function') {
-              ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale)); ctx.stroke();
+              ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * r)); ctx.stroke();
             } else {
               ctx.strokeRect(mapX, mapY, mapSize, mapSize);
             }
 
-            drawRotatedWatermarkText(ctx, 0, 0, boxWidth, scale, mapSize + Math.round(24 * scale));
+            drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, mapSize + Math.round(24 * r));
             ctx.restore();
           };
           mapImg.src = mapDataUrl;
         } else {
-          drawRotatedWatermarkText(ctx, 0, 0, boxWidth, scale, Math.round(15 * scale));
+          drawRotatedWatermarkText(ctx, -boxWidth, -boxHeight, boxWidth, r, Math.round(15 * r));
           ctx.restore();
         }
 
       } else {
-        const boxHeight = Math.round(135 * scale);
-        const boxY = canvas.height - boxHeight - Math.round(15 * scale);
-        const boxX = Math.round(15 * scale);
-        const boxWidth = width - Math.round(30 * scale);
+        // Mode Portrait: bottom: 12px; left: 12px; right: 12px;
+        const boxHeight = Math.round(135 * r);
+        const boxY = canvas.height - boxHeight - Math.round(12 * r);
+        const boxX = Math.round(12 * r);
+        const boxWidth = width - Math.round(24 * r);
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
-          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, Math.round(12 * scale));
+          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, Math.round(12 * r));
           ctx.fill();
         } else {
           ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
@@ -651,13 +651,13 @@
         if (mapDataUrl) {
           const mapImg = new Image();
           mapImg.onload = () => {
-            const mapSize = Math.round(110 * scale);
-            const mapX = boxX + Math.round(12 * scale);
-            const mapY = boxY + Math.round(12 * scale);
+            const mapSize = Math.round(110 * r);
+            const mapX = boxX + Math.round(12 * r);
+            const mapY = boxY + Math.round(12 * r);
 
             ctx.save();
             ctx.beginPath();
-            if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale));
+            if (typeof ctx.roundRect === 'function') ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * r));
             ctx.clip();
             ctx.drawImage(mapImg, mapX, mapY, mapSize, mapSize);
             ctx.restore();
@@ -665,68 +665,68 @@
             ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = 1.5;
             if (typeof ctx.roundRect === 'function') {
-              ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * scale)); ctx.stroke();
+              ctx.beginPath(); ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(8 * r)); ctx.stroke();
             } else {
               ctx.strokeRect(mapX, mapY, mapSize, mapSize);
             }
 
-            drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, mapSize + Math.round(24 * scale));
+            drawWatermarkText(ctx, boxX, boxY, boxWidth, r, mapSize + Math.round(24 * r));
           };
           mapImg.src = mapDataUrl;
         } else {
-          drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, Math.round(15 * scale));
+          drawWatermarkText(ctx, boxX, boxY, boxWidth, r, Math.round(15 * r));
         }
       }
     }
 
-    function drawRotatedWatermarkText(ctx, boxX, boxY, boxWidth, scale, textOffsetX) {
+    function drawRotatedWatermarkText(ctx, boxX, boxY, boxWidth, r, textOffsetX) {
       const contentX = boxX + textOffsetX;
-      const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * scale);
+      const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * r);
       
       ctx.fillStyle = "#F59E0B";
-      ctx.font = "bold " + Math.round(11 * scale) + "px sans-serif";
-      ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * scale));
+      ctx.font = "bold " + Math.round(11 * r) + "px sans-serif";
+      ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * r));
 
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = Math.round(9.5 * scale) + "px sans-serif";
-      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * scale), maxTextWidth, Math.round(13 * scale));
+      ctx.font = Math.round(9.5 * r) + "px sans-serif";
+      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * r), maxTextWidth, Math.round(13 * r));
 
       ctx.fillStyle = "#38BDF8";
-      ctx.font = "bold " + Math.round(10 * scale) + "px monospace";
-      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * scale));
+      ctx.font = "bold " + Math.round(10 * r) + "px monospace";
+      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * r));
 
       const now = getRealTime();
       const tanggalStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + " " + now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + " GMT +07:00";
       
       ctx.fillStyle = "#CBD5E1";
-      ctx.font = Math.round(9 * scale) + "px sans-serif";
-      ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * scale));
+      ctx.font = Math.round(9 * r) + "px sans-serif";
+      ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * r));
 
       finalizeCanvasImage();
     }
 
-    function drawWatermarkText(ctx, boxX, boxY, boxWidth, scale, textOffsetX) {
+    function drawWatermarkText(ctx, boxX, boxY, boxWidth, r, textOffsetX) {
       const contentX = boxX + textOffsetX;
-      const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * scale);
+      const maxTextWidth = boxWidth - textOffsetX - Math.round(12 * r);
       
       ctx.fillStyle = "#F59E0B";
-      ctx.font = "bold " + Math.round(11 * scale) + "px sans-serif";
-      ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * scale));
+      ctx.font = "bold " + Math.round(11 * r) + "px sans-serif";
+      ctx.fillText("📍 GPS MAP Camera Excellent Kencana", contentX, boxY + Math.round(22 * r));
 
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = Math.round(9.5 * scale) + "px sans-serif";
-      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * scale), maxTextWidth, Math.round(13 * scale));
+      ctx.font = Math.round(9.5 * r) + "px sans-serif";
+      wrapTextThreeLines(ctx, resolvedAddressText, contentX, boxY + Math.round(38 * r), maxTextWidth, Math.round(13 * r));
 
       ctx.fillStyle = "#38BDF8";
-      ctx.font = "bold " + Math.round(10 * scale) + "px monospace";
-      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * scale));
+      ctx.font = "bold " + Math.round(10 * r) + "px monospace";
+      ctx.fillText(`Lat ${currentUserGps.lat.toFixed(6)} Long ${currentUserGps.lon.toFixed(6)}`, contentX, boxY + Math.round(95 * r));
 
       const now = getRealTime();
       const tanggalStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + " " + now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + " GMT +07:00";
       
       ctx.fillStyle = "#CBD5E1";
-      ctx.font = Math.round(9 * scale) + "px sans-serif";
-      ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * scale));
+      ctx.font = Math.round(9 * r) + "px sans-serif";
+      ctx.fillText(tanggalStr, contentX, boxY + Math.round(115 * r));
 
       finalizeCanvasImage();
     }
