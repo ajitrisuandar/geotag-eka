@@ -42,7 +42,7 @@
       transform: none;
     }
 
-    /* 2. Mode Landscape (Watermark digeser lebih ke dalam agar pas di tengah bawah) */
+    /* 2. Mode Landscape */
     .mode-landscape #liveControlsContainer {
       top: 12px;
       left: 12px;
@@ -86,13 +86,14 @@
 
     <!-- 2. Kotak Kamera Live & Watermark Overlay -->
     <div id="liveCameraContainer" class="w-full hidden flex flex-col items-center relative">
-      <div id="cameraViewWrapper" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait">
+      <!-- cameraViewWrapper memiliki event onclick untuk Fokus Kamera -->
+      <div id="cameraViewWrapper" onclick="triggerAutoFocus()" class="w-full rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-black relative mode-portrait cursor-pointer">
         
-        <!-- Elemen Video Live (Lebih Besar / Penuh) -->
+        <!-- Elemen Video Live -->
         <video id="videoElement" autoplay playsinline muted class="w-full h-[78vh] max-h-[820px] object-cover"></video>
         
-        <!-- Tombol Kontrol (Di Kiri Atas) -->
-        <div id="liveControlsContainer" class="absolute flex gap-2 z-20 transition-all duration-300">
+        <!-- Tombol Kontrol -->
+        <div id="liveControlsContainer" onclick="event.stopPropagation()" class="absolute flex gap-2 z-20 transition-all duration-300">
           <button onclick="switchCamera()" class="bg-slate-900/85 hover:bg-slate-800 text-amber-400 p-2.5 rounded-full shadow-lg backdrop-blur-md border border-slate-700 flex items-center justify-center" title="Ganti Kamera">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -167,9 +168,10 @@
     let mapDataUrl = "";
     let finalWatermarkedDataUrl = "";
     let mediaStream = null;
+    let videoTrack = null;
     let serverTimeOffset = 0;
     let currentFacingMode = 'environment';
-    let layoutOrientation = 'portrait'; // 'portrait' | 'landscape'
+    let layoutOrientation = 'portrait';
     const LOGO_URL = "logo.png"; 
 
     document.addEventListener("DOMContentLoaded", async function() {
@@ -206,7 +208,7 @@
         cameraWrapper.classList.remove('mode-portrait');
         cameraWrapper.classList.add('mode-landscape');
         icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />';
-        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape (Watermark Diposisikan ke Tengah Bawah)', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Mode Landscape Aktif', showConfirmButton: false, timer: 1500 });
       } else {
         cameraWrapper.classList.remove('mode-landscape');
         cameraWrapper.classList.add('mode-portrait');
@@ -405,12 +407,14 @@
           video: {
             facingMode: { ideal: currentFacingMode },
             width: { ideal: 1280 },
-            height: { ideal: 720 }
+            height: { ideal: 720 },
+            focusMode: { ideal: "continuous" } // Mengaktifkan Auto Focus Kontinu jika didukung
           },
           audio: false
         };
 
         mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoTrack = mediaStream.getVideoTracks()[0];
         const videoElement = document.getElementById('videoElement');
         videoElement.srcObject = mediaStream;
         
@@ -425,6 +429,7 @@
         console.error("Gagal membuka kamera:", err);
         try {
           mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          videoTrack = mediaStream.getVideoTracks()[0];
           document.getElementById('videoElement').srcObject = mediaStream;
         } catch (e2) {
           Swal.fire({
@@ -433,6 +438,38 @@
             text: 'Pastikan Anda memberikan izin akses kamera pada browser.'
           });
         }
+      }
+    }
+
+    // FUNGSIONALITAS TAP TO FOCUS (FOKUS SAAT LAYAR DIKLIK)
+    async function triggerAutoFocus() {
+      if (!videoTrack) return;
+
+      try {
+        const capabilities = videoTrack.getCapabilities ? videoTrack.getCapabilities() : {};
+        
+        if (capabilities.focusMode && capabilities.focusMode.includes('single-shot')) {
+          // Paksa memicu siklus fokus sekali
+          await videoTrack.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] });
+          // Kembalikan ke otomatis setelah 1.5 detik
+          setTimeout(() => {
+            videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(()=>{});
+          }, 1500);
+        } else if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+          await videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+        }
+        
+        // Notifikasi Toast kecil bahwa fokus dipicu
+        Swal.fire({
+          toast: true,
+          position: 'top',
+          icon: 'success',
+          title: '🎯 Memfokuskan Kamera...',
+          showConfirmButton: false,
+          timer: 1000
+        });
+      } catch (err) {
+        console.log("Tap-to-focus tidak didukung secara langsung oleh perangkat/browser ini:", err);
       }
     }
 
@@ -496,7 +533,6 @@
           
           ctx.save();
           if (layoutOrientation === 'landscape') {
-            // Mode Landscape: Logo di Kiri Bawah & Diputar -90°
             let logoX = Math.round(20 * scale);
             let logoY = canvas.height - Math.round(35 * scale);
             ctx.translate(logoX, logoY);
@@ -515,7 +551,6 @@
             }
             ctx.drawImage(logoImg, logoPadding, logoPadding, logoWidth, logoHeight);
           } else {
-            // Mode Portrait: Logo di Atas Kiri (Normal)
             let logoX = Math.round(15 * scale);
             let logoY = Math.round(15 * scale);
             const bgWidth = logoWidth + (2 * logoPadding);
@@ -533,7 +568,7 @@
           }
           ctx.restore();
 
-          (canvas, scale);
+          loadMapAndRenderWatermark(canvas, scale);
         };
         logoImg.onerror = () => {
           loadMapAndRenderWatermark(canvas, scale);
@@ -549,18 +584,15 @@
       const width = canvas.width;
 
       if (layoutOrientation === 'landscape') {
-        // Mode Landscape: Watermark Card digeser ke dalam (tidak terpotong di tepi kanan/bawah)
         const boxWidth = Math.round(320 * scale);
         const boxHeight = Math.round(135 * scale);
         
         ctx.save();
-        // Titik translasi disesuaikan agar pas di tengah bawah area canvas
         const transX = width - Math.round(90 * scale);
         const transY = canvas.height - Math.round(90 * scale);
         ctx.translate(transX, transY);
         ctx.rotate(-Math.PI / 2);
 
-        // Render kotak background watermark
         ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         if (typeof ctx.roundRect === 'function') {
           ctx.beginPath();
@@ -602,7 +634,6 @@
         }
 
       } else {
-        // Mode Portrait: Watermark Melebar Penuh di Bawah (Normal)
         const boxHeight = Math.round(135 * scale);
         const boxY = canvas.height - boxHeight - Math.round(15 * scale);
         const boxX = Math.round(15 * scale);
